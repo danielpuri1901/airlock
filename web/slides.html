@@ -19,10 +19,10 @@
     background:var(--bg); color:var(--ink); font-family:var(--display); overflow:hidden;
     -webkit-font-smoothing:antialiased;
     background-image:
-      radial-gradient(900px 600px at 78% 8%, rgba(59,130,246,.16), transparent 60%),
-      radial-gradient(700px 500px at 10% 100%, rgba(59,130,246,.08), transparent 55%),
-      radial-gradient(circle at 1px 1px, rgba(255,255,255,.035) 1px, transparent 0);
-    background-size:auto,auto,26px 26px;
+      radial-gradient(900px 600px at 78% 8%, rgba(59,130,246,.15), transparent 60%),
+      radial-gradient(700px 500px at 10% 100%, rgba(59,130,246,.07), transparent 55%),
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,.03) 1px, transparent 0);
+    background-size:auto,auto,28px 28px;
   }
   .hud{position:fixed;left:0;right:0;display:flex;justify-content:space-between;padding:22px 30px;
     font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;z-index:5;pointer-events:none}
@@ -33,52 +33,43 @@
 
   .deck{position:fixed;inset:0}
   .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
-    padding:0 clamp(34px,8vw,140px);opacity:0;visibility:hidden;transition:opacity .5s ease}
+    padding:0 clamp(36px,9vw,160px);opacity:0;visibility:hidden;transition:opacity .5s ease}
   .slide.active{opacity:1;visibility:visible}
-  .wrap{max-width:1120px;width:100%;margin:0 auto}
+  .wrap{max-width:1080px;width:100%;margin:0 auto}
 
-  .kick{font-family:var(--mono);font-size:clamp(12px,1.1vw,15px);letter-spacing:.26em;color:var(--blue2);
-    text-transform:uppercase;margin-bottom:26px}
-  h1{font-weight:900;line-height:.96;letter-spacing:-.02em;font-size:clamp(40px,8vw,112px)}
-  h2{font-weight:800;line-height:1.04;letter-spacing:-.02em;font-size:clamp(32px,5.8vw,82px)}
+  .kick{font-family:var(--mono);font-size:clamp(12px,1.1vw,15px);letter-spacing:.28em;color:var(--blue2);
+    text-transform:uppercase;margin-bottom:30px}
+  h1{font-weight:900;line-height:.98;letter-spacing:-.02em;font-size:clamp(40px,8vw,108px)}
+  h2{font-weight:800;line-height:1.06;letter-spacing:-.02em;font-size:clamp(34px,6vw,84px)}
   .accent{color:var(--blue2)}
-  .lede{font-size:clamp(18px,2.4vw,33px);font-weight:400;color:#c4cee0;line-height:1.34;margin-top:26px;max-width:24ch}
-  .note{font-family:var(--mono);font-size:clamp(12px,1.15vw,16px);color:var(--mut);line-height:1.7;margin-top:30px}
-  .note b{color:#aab8d0;font-weight:500}
-
-  .tag{display:inline-block;font-family:var(--mono);font-weight:700;padding:3px 9px;border-radius:6px;font-size:.82em}
+  .one{font-size:clamp(18px,2.2vw,30px);font-weight:400;color:#aab8d0;line-height:1.35;margin-top:28px}
+  .note{font-family:var(--mono);font-size:clamp(12px,1.15vw,16px);color:var(--mut);margin-top:30px;letter-spacing:.02em}
+  .note b{color:#b6c2d8;font-weight:500}
+  .tag{display:inline-block;font-family:var(--mono);font-weight:700;padding:3px 9px;border-radius:6px;font-size:.85em}
   .tag.ok{color:var(--green);background:rgba(86,209,126,.12)} .tag.no{color:var(--red);background:rgba(255,93,93,.12)}
 
-  .mark{display:flex;align-items:center;gap:18px;margin-bottom:28px}
+  .mark{display:flex;align-items:center;gap:18px;margin-bottom:26px}
   .mark svg{filter:drop-shadow(0 0 18px rgba(59,130,246,.5))}
-  .brand{font-size:clamp(52px,11vw,150px);font-weight:900;letter-spacing:-.04em;line-height:.9}
-  .foot{font-family:var(--mono);font-size:clamp(11px,1.1vw,15px);letter-spacing:.16em;color:var(--mut);text-transform:uppercase;margin-top:32px}
+  .brand{font-size:clamp(54px,11vw,156px);font-weight:900;letter-spacing:-.04em;line-height:.9}
+  .foot{font-family:var(--mono);font-size:clamp(11px,1.1vw,15px);letter-spacing:.18em;color:var(--mut);text-transform:uppercase;margin-top:34px}
 
-  .wave{display:flex;align-items:center;gap:6px;height:50px;margin-top:38px}
+  .wave{display:flex;align-items:center;gap:6px;height:48px;margin-top:40px}
   .wave i{width:5px;background:var(--blue);border-radius:3px;height:14%;opacity:.85;animation:sw 1s ease-in-out infinite}
   @keyframes sw{0%,100%{height:14%}50%{height:100%}}
 
-  .flow{display:flex;align-items:stretch;gap:14px;margin-top:38px;flex-wrap:wrap}
-  .node{flex:1;min-width:185px;border:1px solid var(--line);border-radius:16px;padding:20px;background:rgba(255,255,255,.015)}
-  .node.hot{border-color:rgba(59,130,246,.6);box-shadow:0 0 34px rgba(59,130,246,.16);background:rgba(59,130,246,.06)}
+  .flow{display:flex;align-items:stretch;gap:14px;margin-top:42px;flex-wrap:wrap}
+  .node{flex:1;min-width:180px;border:1px solid var(--line);border-radius:16px;padding:22px;background:rgba(255,255,255,.015)}
+  .node.hot{border-color:rgba(59,130,246,.55);box-shadow:0 0 34px rgba(59,130,246,.15);background:rgba(59,130,246,.06)}
   .node .nlabel{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--blue2);text-transform:uppercase}
-  .node .nbody{font-size:clamp(15px,1.6vw,21px);font-weight:600;margin-top:12px;line-height:1.3;color:#dbe3f2}
+  .node .nbody{font-size:clamp(16px,1.7vw,23px);font-weight:700;margin-top:12px;line-height:1.25;color:#dbe3f2}
   .node.hot .nbody{color:#fff}
   .arrow{display:flex;align-items:center;color:var(--blue2);font-weight:800;font-size:26px}
-
-  .pair{display:flex;gap:16px;margin-top:38px;flex-wrap:wrap}
-  .chip{flex:1;min-width:240px;border:1px solid var(--line);border-radius:16px;padding:20px 22px;background:rgba(255,255,255,.015)}
-  .chip .t{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--mut);text-transform:uppercase}
-  .chip .v{font-size:clamp(17px,1.8vw,24px);font-weight:700;margin-top:10px;line-height:1.28}
-  .chip.blue{border-color:rgba(59,130,246,.5)} .chip.blue .v{color:var(--blue2)}
-
-  @media(max-width:760px){.flow,.pair{flex-direction:column}.arrow{transform:rotate(90deg);justify-content:center}}
+  @media(max-width:760px){.flow{flex-direction:column}.arrow{transform:rotate(90deg);justify-content:center}}
 
   .slide.active .r{animation:rise .6s cubic-bezier(.2,.7,.2,1) backwards}
   .slide.active .r:nth-child(1){animation-delay:.05s}
-  .slide.active .r:nth-child(2){animation-delay:.15s}
-  .slide.active .r:nth-child(3){animation-delay:.25s}
-  .slide.active .r:nth-child(4){animation-delay:.35s}
+  .slide.active .r:nth-child(2){animation-delay:.16s}
+  .slide.active .r:nth-child(3){animation-delay:.27s}
   @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 
   .prog{position:fixed;left:0;bottom:0;height:3px;background:var(--blue);width:0;
@@ -97,52 +88,49 @@
   <section class="slide active">
     <div class="wrap">
       <div class="mark r">
-        <svg width="62" height="72" viewBox="0 0 64 74" fill="none">
+        <svg width="60" height="70" viewBox="0 0 64 74" fill="none">
           <path d="M32 3 L59 14 V36 C59 54 47 65 32 71 C17 65 5 54 5 36 V14 Z" fill="#0e1626" stroke="#3b82f6" stroke-width="2.4"/>
           <path d="M21 37 l8 9 l16 -20" stroke="#60a5fa" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <div class="brand">AIRLOCK</div>
       </div>
-      <div class="lede r">Offline 2FA for AI-agent payments.</div>
-      <div class="note r">The second factor runs on your phone — <b>off the network, so it can't be hacked.</b></div>
-      <div class="foot r">ALGORAND · x402 · TRACK 2 — INFRASTRUCTURE</div>
+      <div class="one r" style="color:#dbe3f2;font-size:clamp(20px,2.6vw,38px)">Offline 2FA for AI-agent payments.</div>
+      <div class="foot r">ALGORAND · x402 · TRACK 2</div>
     </div>
   </section>
 
-  <!-- 2 · THE PROBLEM -->
+  <!-- 2 · PROBLEM -->
   <section class="slide">
     <div class="wrap">
-      <div class="kick r">01 — the problem</div>
-      <h1 class="r">Agent payments have<br>one factor: the agent.</h1>
-      <div class="lede r">It signs alone. Trick it once — a hidden line on a page it reads — and the money's <span class="accent">gone.</span></div>
-      <div class="note r">prompt injection · no human in the loop · <b>no chargeback</b></div>
+      <div class="kick r">the problem</div>
+      <h1 class="r">Trick an AI agent,<br>and it drains<br>its own wallet.</h1>
+      <div class="note r">one hidden message · <b>no undo</b></div>
     </div>
   </section>
 
   <!-- 3 · THE GAP -->
   <section class="slide">
     <div class="wrap">
-      <div class="kick r">02 — why today's fixes don't cut it</div>
-      <h2 class="r">Everyone's second factor lives<br>where the attacker can reach it.</h2>
-      <div class="lede r">Cloud cosigners and intent-checkers exist — but the key that stops the payment sits <span class="accent">online.</span> Hack the server, and it's gone.</div>
+      <div class="kick r">today</div>
+      <h2 class="r">Every fix runs in the cloud —<br>where it <span class="accent">can be hacked.</span></h2>
     </div>
   </section>
 
   <!-- 4 · WHAT WE BUILT -->
   <section class="slide">
     <div class="wrap">
-      <div class="kick r">03 — airlock</div>
-      <h2 class="r">The second factor runs offline.<br>On your phone.</h2>
-      <div class="lede r">No network — nothing to remotely hack. It reads the payment, signs only if it's safe, and the chain won't settle without it.</div>
+      <div class="kick r">airlock</div>
+      <h2 class="r">A second approval<br>that runs <span class="accent">offline.</span><br>On your phone.</h2>
+      <div class="one r">It approves a payment only if it's safe.</div>
     </div>
   </section>
 
   <!-- 5 · DEMO -->
   <section class="slide">
     <div class="wrap">
-      <div class="kick r">04 — live</div>
-      <h2 class="r">Airplane mode.<br>The ultimate proof.</h2>
-      <div class="note r">safe → signs over <b>sound</b> → <span class="tag ok">SETTLED</span>&nbsp;&nbsp; hijack → won't sign → <span class="tag no">NO SETTLEMENT</span></div>
+      <div class="kick r">live</div>
+      <h1 class="r">Airplane mode.</h1>
+      <div class="note r">safe → <span class="tag ok">SETTLES</span>&nbsp;&nbsp; hijack → <span class="tag no">BLOCKED</span></div>
       <div class="wave r" aria-hidden="true">
         <i style="animation-delay:0s"></i><i style="animation-delay:.08s"></i><i style="animation-delay:.16s"></i><i style="animation-delay:.24s"></i><i style="animation-delay:.32s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.16s"></i><i style="animation-delay:.28s"></i><i style="animation-delay:.12s"></i><i style="animation-delay:.36s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.04s"></i>
       </div>
@@ -152,29 +140,24 @@
   <!-- 6 · HOW IT WORKS -->
   <section class="slide">
     <div class="wrap">
-      <div class="kick r">05 — how it works</div>
-      <h2 class="r" style="font-size:clamp(28px,4.6vw,60px)">What's actually happening.</h2>
+      <div class="kick r">how it works</div>
       <div class="flow r">
         <div class="node"><div class="nlabel">AI agent</div><div class="nbody">wants to pay</div></div>
         <div class="arrow">→</div>
-        <div class="node hot"><div class="nlabel">Airlock · your phone</div><div class="nbody">offline · reads the intent · signs only if it's safe</div></div>
+        <div class="node hot"><div class="nlabel">your phone</div><div class="nbody">checks it · offline</div></div>
         <div class="arrow">→</div>
-        <div class="node"><div class="nlabel">Algorand</div><div class="nbody">2-of-2 multisig · settles, or refuses</div></div>
+        <div class="node"><div class="nlabel">Algorand</div><div class="nbody">settles, or refuses</div></div>
       </div>
-      <div class="note r">We never touched the facilitator — <b>the chain enforces it.</b> Even a malicious facilitator can't settle without the signature.</div>
+      <div class="note r">no second approval → the payment can't settle.</div>
     </div>
   </section>
 
   <!-- 7 · WHERE THIS GOES -->
   <section class="slide">
     <div class="wrap">
-      <div class="kick r">06 — where this goes</div>
-      <h2 class="r">On-device AI is the shift.<br>We put it on the money — first, on Algorand.</h2>
-      <div class="pair r">
-        <div class="chip"><div class="t">now</div><div class="v">a small model on your phone, catching the hijack — live on TestNet</div></div>
-        <div class="chip blue"><div class="t">next</div><div class="v">bigger on-device models judge every agent action — private, offline, yours</div></div>
-      </div>
-      <div class="foot r">Milestone — mainnet + an AlgoKit package any Algorand agent installs.</div>
+      <div class="kick r">where this goes</div>
+      <h2 class="r">Today it catches the hijack.<br>Tomorrow it judges <span class="accent">everything</span><br>your agents do.</h2>
+      <div class="foot r">on-device AI · on Algorand · mainnet next</div>
     </div>
   </section>
 
