@@ -64,7 +64,32 @@
   .node .nbody{font-size:clamp(16px,1.7vw,23px);font-weight:700;margin-top:12px;line-height:1.25;color:#dbe3f2}
   .node.hot .nbody{color:#fff}
   .arrow{display:flex;align-items:center;color:var(--blue2);font-weight:800;font-size:26px}
-  @media(max-width:760px){.flow{flex-direction:column}.arrow{transform:rotate(90deg);justify-content:center}}
+
+  /* slide 4 — text + phone screenshot */
+  .split{display:flex;align-items:center;gap:clamp(28px,5vw,72px);flex-wrap:wrap}
+  .split .col{flex:1;min-width:270px}
+  .phone-shot{max-height:78vh;width:auto;border-radius:30px;border:1px solid #223149;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 50px rgba(59,130,246,.12);display:block}
+
+  /* slide 3 — cloud vs local */
+  .versus{display:flex;align-items:stretch;gap:clamp(16px,3vw,40px);margin-top:38px;flex-wrap:wrap;justify-content:center}
+  .vcard{flex:1;min-width:230px;border:1px solid var(--line);border-radius:22px;padding:clamp(26px,3vw,42px) 26px;text-align:center;background:rgba(255,255,255,.015);display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .vcard.bad{border-color:rgba(255,93,93,.38)}
+  .vcard.good{border-color:rgba(59,130,246,.55);box-shadow:0 0 44px rgba(59,130,246,.14);background:rgba(59,130,246,.05)}
+  .vcard svg{height:clamp(74px,11vh,118px);width:auto}
+  .vlabel{font-size:clamp(20px,2.3vw,32px);font-weight:800;margin-top:24px}
+  .vsub{font-family:var(--mono);font-size:clamp(12px,1.15vw,15px);margin-top:10px;letter-spacing:.03em}
+  .vcard.bad .vsub{color:#ff8a8a} .vcard.good .vsub{color:var(--blue2)}
+  .vx{display:flex;align-items:center;font-family:var(--mono);font-size:16px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase}
+
+  /* slide 6 — sound arrows + steps */
+  .sarrow{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--blue2);font-weight:800}
+  .sarrow span{font-size:10px;color:var(--dim);font-family:var(--mono);font-weight:400;margin-bottom:3px;letter-spacing:.03em;white-space:nowrap}
+  .sarrow .a{font-size:24px}
+  .steps{font-family:var(--mono);font-size:clamp(11.5px,1.15vw,15px);color:#9fb1cf;line-height:1.65;margin-top:10px;text-align:left}
+  .steps b{color:#fff;font-weight:500}
+
+  @media(max-width:760px){.flow{flex-direction:column}.arrow{transform:rotate(90deg);justify-content:center}
+    .versus{flex-direction:column}.vx{transform:rotate(90deg)}.sarrow{transform:rotate(90deg)}}
 
   .slide.active .r{animation:rise .6s cubic-bezier(.2,.7,.2,1) backwards}
   .slide.active .r:nth-child(1){animation-delay:.05s}
@@ -108,20 +133,46 @@
     </div>
   </section>
 
-  <!-- 3 · THE GAP -->
+  <!-- 3 · CLOUD vs LOCAL -->
   <section class="slide">
     <div class="wrap">
-      <div class="kick r">today</div>
-      <h2 class="r">Every fix runs in the cloud —<br>where it <span class="accent">can be hacked.</span></h2>
+      <div class="kick r">today's fixes vs. airlock</div>
+      <div class="versus r">
+        <div class="vcard bad">
+          <svg viewBox="0 0 150 96" fill="none">
+            <g fill="#161d2b" stroke="#ff6b6b" stroke-width="2.6">
+              <rect x="36" y="50" width="80" height="26" rx="13"/>
+              <circle cx="52" cy="52" r="20"/><circle cx="82" cy="44" r="25"/><circle cx="108" cy="56" r="17"/>
+            </g>
+          </svg>
+          <div class="vlabel">in the cloud</div>
+          <div class="vsub">reachable · hackable</div>
+        </div>
+        <div class="vx">vs</div>
+        <div class="vcard good">
+          <svg viewBox="0 0 92 140" fill="none">
+            <rect x="11" y="6" width="70" height="128" rx="15" fill="#0e1626" stroke="#3b82f6" stroke-width="2.6"/>
+            <path d="M46 42 L63 49 V66 C63 78 55 86 46 90 C37 86 29 78 29 66 V49 Z" fill="#16223a" stroke="#60a5fa" stroke-width="2.2"/>
+            <path d="M39 65 l5 6 l11 -14" stroke="#60a5fa" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="vlabel">on your phone</div>
+          <div class="vsub">offline · can't be reached</div>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- 4 · WHAT WE BUILT -->
   <section class="slide">
-    <div class="wrap">
-      <div class="kick r">airlock</div>
-      <h2 class="r">A second approval<br>that runs <span class="accent">offline.</span><br>On your phone.</h2>
-      <div class="one r">It approves a payment only if it's safe.</div>
+    <div class="wrap split">
+      <div class="col">
+        <div class="kick r">airlock</div>
+        <h2 class="r" style="font-size:clamp(30px,5vw,72px)">A second signature<br>that runs <span class="accent">offline.</span><br>On your phone.</h2>
+        <div class="one r">It approves a payment only if it's safe.</div>
+      </div>
+      <div class="col r" style="flex:0 0 auto;text-align:center">
+        <img class="phone-shot" src="slide-img.png" alt="Airlock guard on iPhone — airplane mode, model loaded, armed" />
+      </div>
     </div>
   </section>
 
@@ -137,18 +188,31 @@
     </div>
   </section>
 
-  <!-- 6 · HOW IT WORKS -->
+  <!-- 6 · HOW IT WORKS (the technical slide) -->
   <section class="slide">
     <div class="wrap">
       <div class="kick r">how it works</div>
-      <div class="flow r">
-        <div class="node"><div class="nlabel">AI agent</div><div class="nbody">wants to pay</div></div>
-        <div class="arrow">→</div>
-        <div class="node hot"><div class="nlabel">your phone</div><div class="nbody">checks it · offline</div></div>
-        <div class="arrow">→</div>
-        <div class="node"><div class="nlabel">Algorand</div><div class="nbody">settles, or refuses</div></div>
+      <div class="flow r" style="align-items:stretch">
+        <div class="node">
+          <div class="nlabel">AI agent · laptop</div>
+          <div class="nbody" style="font-size:clamp(14px,1.45vw,19px)">builds the payment<br><span style="color:#7e93b8;font-weight:400;font-size:.8em">2-of-2 multisig</span></div>
+        </div>
+        <div class="sarrow"><span>🔊 request</span><div class="a">→</div></div>
+        <div class="node hot">
+          <div class="nlabel">your phone · offline</div>
+          <div class="steps">
+            · <b>29 MB injection model</b> reads&nbsp;the&nbsp;intent<br>
+            · <b>rebuilds the exact transaction</b><br>
+            · signs it — <b>ed25519</b>
+          </div>
+        </div>
+        <div class="sarrow"><span>🔊 signature</span><div class="a">→</div></div>
+        <div class="node">
+          <div class="nlabel">Algorand</div>
+          <div class="nbody" style="font-size:clamp(14px,1.45vw,19px)">2 sigs → <span style="color:var(--green)">settles</span><br>1 missing → <span style="color:var(--red)">refused</span></div>
+        </div>
       </div>
-      <div class="note r">no second approval → the payment can't settle.</div>
+      <div class="note r">the signature crosses back over sound · <b>the chain enforces the second one</b></div>
     </div>
   </section>
 
