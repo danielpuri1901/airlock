@@ -32,14 +32,15 @@ def main():
     print("AGENT: listening for the phone's signature over sound...")
     received = listen(timeout_s=45)
     if received is None:
-        print("AGENT: no signature returned -> the phone BLOCKED it. No settlement.")
+        print("\n  ⛔ BLOCKED — the phone withheld its signature.")
+        print("     No second signature → the chain cannot settle. The money does not move.\n")
         return
     try:
         sig = base64.b64decode(received)        # the phone chirps the 64-byte sig as base64
     except Exception:
         sig = received
     if len(sig) != 64:
-        print(f"AGENT: heard a {len(sig)}-byte payload, not a signature. No settlement.")
+        print(f"\n  ⛔ heard a {len(sig)}-byte payload, not a signature. No settlement.\n")
         return
 
     mtx = MultisigTransaction(txn, Multisig(1, 2, [cfg["agent_addr"], cfg["airlock_addr"]]))
@@ -47,9 +48,11 @@ def main():
     for ss in mtx.multisig.subsigs:
         if ss.public_key == AIRLOCK_PK:
             ss.signature = sig
+    print("AGENT: phone co-signed ✓  inserting signature + submitting to Algorand...")
     txid = ALGOD.send_raw_transaction(encoding.msgpack_encode(mtx))
     wait_for_confirmation(ALGOD, txid, 6)
-    print(f"AGENT: SETTLED on TestNet -> https://lora.algokit.io/testnet/tx/{txid}")
+    print("\n  ✅ SETTLED on Algorand TestNet")
+    print(f"  🔗 https://lora.algokit.io/testnet/tx/{txid}\n")
 
 
 if __name__ == "__main__":
