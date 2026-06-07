@@ -1,0 +1,11 @@
+ggwave==0.4.3
+numpy==2.4.6
+onnxruntime==1.26.0
+optimum==2.1.0
+py-algorand-sdk==2.11.1
+PyAudio==0.2.14
+requests==2.34.2
+sentencepiece==0.2.1
+tokenizers==0.22.2
+torch==2.12.0
+transformers==4.57.6
