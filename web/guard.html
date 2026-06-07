@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#0b0f1a" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon.png" />
+<title>Airlock</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 22px; background:#0b0f1a; color:#e8eef9; -webkit-text-size-adjust:100%; }
+  h1 { font-size: 22px; margin:0 0 2px; } .sub { color:#7e93b8; font-size:13px; margin-bottom:18px; }
+  .card { background:#121826; border:1px solid #20293c; border-radius:16px; padding:16px; margin:12px 0; }
+  button { font-size:17px; font-weight:600; padding:14px 16px; margin:6px 0; width:100%; border:0; border-radius:13px; background:#2b6fff; color:#fff; }
+  button.big { font-size:19px; padding:18px; background:#1f7a3d; }
+  button:disabled { background:#2a3550; color:#7e93b8; }
+  input { font-size:16px; padding:12px; width:100%; box-sizing:border-box; border-radius:11px; border:1px solid #2a3550; background:#0e1422; color:#e8eef9; }
+  .bar { height:12px; background:#1b2436; border-radius:6px; overflow:hidden; display:none; margin:8px 0; }
+  .bar > div { height:100%; width:0; background:#2b6fff; transition:width .15s; }
+  .state { font-size:15px; font-weight:600; margin:4px 0; }
+  .log { font-family: ui-monospace, monospace; font-size:12.5px; white-space:pre-wrap; color:#9db4d6; margin-top:8px; }
+  .ok{color:#5ad17a} .bad{color:#ff6b6b} .warn{color:#ffd166}
+  .big-verdict { font-size:34px; font-weight:800; text-align:center; padding:14px 0; }
+  .muted{color:#7e93b8;font-size:12px}
+</style>
+</head>
+<body>
+<h1>🛡️ Airlock</h1>
+<div class="sub">offline payment guard · air-gapped signer over sound</div>
+
+<div class="card" id="setupCard">
+  <div class="state">1 · Airlock key (stored on this phone only)</div>
+  <input id="mn" placeholder="paste the 25-word airlock mnemonic" autocomplete="off" autocapitalize="none" />
+  <button id="setKey">Set key</button>
+  <div class="log muted" id="keyLog">never leaves this device · never sent to a server</div>
+</div>
+
+<div class="card">
+  <div class="state">2 · On-device model</div>
+  <button id="loadBtn">Load injection model (~29MB)</button>
+  <div class="bar" id="bar"><div id="fill"></div></div>
+  <div class="log" id="mlog">not loaded</div>
+</div>
+
+<div class="card">
+  <div class="state">3 · Guard</div>
+  <button id="arm" class="big" disabled>ARM — listen for payments</button>
+  <div class="big-verdict" id="verdict">—</div>
+  <div class="log" id="glog">put me in airplane mode after loading. I only use the mic + speaker.</div>
+</div>
+
+<script src="airlock-config.js"></script>
+<script src="ggwave.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/algosdk@2.7.0/dist/browser/algosdk.min.js"></script>
+<script type="module">
+import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2";
+env.allowRemoteModels = false; env.allowLocalModels = true; env.localModelPath = "./models/";
+const CFG = window.AIRLOCK_CONFIG;
+
+const $ = id => document.getElementById(id);
+const mlog=(t,c)=>$("mlog").innerHTML=`<span class="${c||''}">${t}</span>`;
+const glog=(t,c)=>$("glog").innerHTML=`<span class="${c||''}">${t}</span>`;
+const klog=(t,c)=>$("keyLog").innerHTML=`<span class="${c||''}">${t}</span>`;
+const setVerdict=(t,c)=>{const v=$("verdict"); v.textContent=t; v.className="big-verdict "+(c||"");};
+
+// ---- 1. key (on-device) ----
+let SK = null;
+const saved = localStorage.getItem("airlock_mn");
+if (saved) $("mn").value = saved;
+$("setKey").onclick = () => {
+  try {
+    const { sk, addr } = algosdk.mnemonicToSecretKey($("mn").value.trim());
+    if (addr !== CFG.airlock_addr) return klog(`that key is ${addr.slice(0,8)}… but this guard expects ${CFG.airlock_addr.slice(0,8)}…`, "bad");
+    SK = sk; localStorage.setItem("airlock_mn", $("mn").value.trim());
+    klog(`key set ✓  (${addr.slice(0,10)}…) — on this device only`, "ok");
+    maybeArm();
+  } catch (e) { klog("invalid mnemonic: " + e.message, "bad"); }
+};
+if (saved) { try { const {sk,addr}=algosdk.mnemonicToSecretKey(saved); if(addr===CFG.airlock_addr){SK=sk; klog("key loaded from this device ✓","ok");} } catch(e){} }
+
+// ---- 2. model ----
+let clf = null;
+$("loadBtn").onclick = async () => {
+  const files={}; $("bar").style.display="block"; $("loadBtn").disabled=true;
+  try {
+    mlog("downloading…"); const t0=performance.now();
+    clf = await pipeline("text-classification","airlock-guard-v3",{ dtype:"q8",
+      progress_callback:p=>{ if(p.status==="progress"&&p.file){files[p.file]=p;
+        const b=Object.values(files).sort((a,b)=>(b.total||0)-(a.total||0))[0];
+        if(b&&b.total){const pct=Math.min(100,b.loaded/b.total*100); $("fill").style.width=pct.toFixed(0)+"%";
+          mlog(`${b.file.split("/").pop()} ${pct.toFixed(0)}% (${(b.loaded/1e6)|0}/${(b.total/1e6)|0} MB)`);}}}});
+    $("fill").style.width="100%"; mlog(`loaded ✓ in ${((performance.now()-t0)/1000).toFixed(1)}s`,"ok");
+    maybeArm();
+  } catch(e){ mlog("model failed: "+e.message,"bad"); } finally { $("loadBtn").disabled=false; }
+};
+function maybeArm(){ if (clf && SK) $("arm").disabled=false; }
+
+async function judge(intent){
+  const r=(await clf(intent))[0];
+  const inj = r.label==="LABEL_1" || /inject/i.test(r.label);
+  return { block: inj, score: r.score };
+}
+
+// ---- 3. ggwave + the guard loop ----
+let ctx, gg, inst, busy=false;
+const conv=(s,T)=>{const b=new ArrayBuffer(s.byteLength); new s.constructor(b).set(s); return new T(b);};
+async function initGG(){ if(inst) return;
+  ctx=new (window.AudioContext||window.webkitAudioContext)({sampleRate:48000});
+  gg=await ggwave_factory(); const p=gg.getDefaultParameters();
+  p.sampleRateInp=ctx.sampleRate; p.sampleRateOut=ctx.sampleRate; inst=gg.init(p); }
+function chirp(text){
+  const wav=gg.encode(inst,text,gg.ProtocolId.GGWAVE_PROTOCOL_AUDIBLE_FAST,15);
+  const f32=conv(wav,Float32Array); const buf=ctx.createBuffer(1,f32.length,ctx.sampleRate);
+  buf.getChannelData(0).set(f32); const s=ctx.createBufferSource(); s.buffer=buf;
+  s.connect(ctx.destination); return new Promise(res=>{ s.onended=res; s.start(); });
+}
+
+function buildTxn(payee, amount, first, last){
+  return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+    from: CFG.msig, to: payee, amount: Number(amount), assetIndex: Number(CFG.usdc),
+    suggestedParams: { fee:1000, firstRound:Number(first), lastRound:Number(last),
+                       genesisHash: CFG.gh, genesisID: CFG.genid, flatFee:true } });
+}
+
+async function handle(msg){
+  const parts = msg.split("|");
+  if (parts.length < 5) return;                  // not a payment request
+  const [payee, amount, first, last, ...rest] = parts;
+  const intent = rest.join("|");
+  busy = true;
+  setVerdict("…","warn"); glog(`heard payment: ${(amount/1e6).toFixed(3)} USDC → ${payee.slice(0,8)}…\nintent: "${intent}"\njudging offline…`);
+  const { block, score } = await judge(intent);
+  if (block){
+    setVerdict("⛔ BLOCKED","bad");
+    glog(`BLOCKED (injection ${score.toFixed(2)}) — withholding signature. The payment cannot settle.`,"bad");
+  } else {
+    setVerdict("✅ SIGNING","ok");
+    const txn = buildTxn(payee, amount, first, last);
+    const sig = txn.rawSignTxn(SK);              // raw 64-byte ed25519 signature
+    const sigB64 = btoa(String.fromCharCode(...sig));
+    glog(`APPROVED (${score.toFixed(2)}) — chirping the 64-byte signature back over sound…`,"ok");
+    await chirp(sigB64);
+    glog(`signature sent. payment will settle on the laptop.`,"ok");
+  }
+  setTimeout(()=>{ busy=false; setVerdict("—"); glog("listening…"); }, 1500);
+}
+
+$("arm").onclick = async () => {
+  try {
+    await initGG(); if(ctx.state==="suspended") await ctx.resume();
+    glog("requesting mic…");
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,autoGainControl:false,noiseSuppression:false}});
+    const src=ctx.createMediaStreamSource(stream); const proc=ctx.createScriptProcessor(4096,1,1);
+    src.connect(proc); proc.connect(ctx.destination);
+    proc.onaudioprocess=e=>{ if(busy) return;
+      const res=gg.decode(inst, conv(new Float32Array(e.inputBuffer.getChannelData(0)), Int8Array));
+      if(res&&res.length>0){ try{ handle(new TextDecoder().decode(res)); }catch(err){} } };
+    $("arm").disabled=true; $("arm").textContent="ARMED — listening";
+    setVerdict("—"); glog("listening for a payment over sound… (airplane mode is fine)","ok");
+  } catch(e){ glog("mic failed: "+e.message,"bad"); }
+};
+
+// register the offline service worker (so it works in airplane mode + gets a home-screen icon)
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>

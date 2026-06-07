@@ -1,0 +1,227 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0 8 32
+    bytecblock "usdc_id" "cap_" "allow_"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/policy_guard/contract.py:28-29
+    // # Which coin counts as "USDC" — the owner sets this per network (set_usdc).
+    // self.usdc_id = UInt64(0)
+    bytec_0 // "usdc_id"
+    intc_1 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/policy_guard/contract.py:18
+    // class PolicyGuard(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@13
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x038d1653 0x1d795339 0x6606b34f 0x5386a653 // method "set_usdc(uint64)void", method "set_cap(address,uint64)void", method "allow_payee(address)void", method "enforce(axfer)void"
+    txna ApplicationArgs 0
+    match set_usdc set_cap allow_payee enforce
+    err
+
+main___algopy_default_create@13:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts.policy_guard.contract.PolicyGuard.set_usdc[routing]() -> void:
+set_usdc:
+    // smart_contracts/policy_guard/contract.py:37-38
+    // # ---------- owner-only: set the rules ----------
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/policy_guard/contract.py:40
+    // assert Txn.sender == Global.creator_address, "only the owner can set the coin"
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // only the owner can set the coin
+    // smart_contracts/policy_guard/contract.py:41
+    // self.usdc_id = usdc_id
+    bytec_0 // "usdc_id"
+    swap
+    app_global_put
+    // smart_contracts/policy_guard/contract.py:37-38
+    // # ---------- owner-only: set the rules ----------
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.policy_guard.contract.PolicyGuard.set_cap[routing]() -> void:
+set_cap:
+    // smart_contracts/policy_guard/contract.py:43
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/policy_guard/contract.py:45
+    // assert Txn.sender == Global.creator_address, "only the owner can set the cap"
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // only the owner can set the cap
+    // smart_contracts/policy_guard/contract.py:46
+    // self.cap[payer] = cap
+    bytec_1 // "cap_"
+    uncover 2
+    concat
+    swap
+    itob
+    box_put
+    // smart_contracts/policy_guard/contract.py:43
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.policy_guard.contract.PolicyGuard.allow_payee[routing]() -> void:
+allow_payee:
+    // smart_contracts/policy_guard/contract.py:48
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/policy_guard/contract.py:50
+    // assert Txn.sender == Global.creator_address, "only the owner can edit the allow-list"
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // only the owner can edit the allow-list
+    // smart_contracts/policy_guard/contract.py:51
+    // self.allowed[payee] = UInt64(1)
+    bytec_2 // "allow_"
+    swap
+    concat
+    intc_0 // 1
+    itob
+    box_put
+    // smart_contracts/policy_guard/contract.py:48
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.policy_guard.contract.PolicyGuard.enforce[routing]() -> void:
+enforce:
+    // smart_contracts/policy_guard/contract.py:53-54
+    // # ---------- the gate: runs on EVERY payment ----------
+    // @abimethod
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    pushint 4 // axfer
+    ==
+    assert // transaction type is axfer
+    // smart_contracts/policy_guard/contract.py:56-57
+    // # 1) It must be the coin the owner approved (our USDC).
+    // assert xfer.xfer_asset.id == self.usdc_id, "wrong coin"
+    dup
+    gtxns XferAsset
+    intc_1 // 0
+    bytec_0 // "usdc_id"
+    app_global_get_ex
+    assert // check self.usdc_id exists
+    ==
+    assert // wrong coin
+    // smart_contracts/policy_guard/contract.py:58
+    // payer = xfer.sender
+    dup
+    gtxns Sender
+    // smart_contracts/policy_guard/contract.py:59
+    // payee = xfer.asset_receiver
+    dig 1
+    gtxns AssetReceiver
+    // smart_contracts/policy_guard/contract.py:60
+    // amount = xfer.asset_amount
+    uncover 2
+    gtxns AssetAmount
+    // smart_contracts/policy_guard/contract.py:61-62
+    // # 2) The recipient must be on the owner's allow-list.
+    // assert payee in self.allowed, "payee is not allow-listed"
+    bytec_2 // "allow_"
+    uncover 2
+    concat
+    box_len
+    bury 1
+    assert // payee is not allow-listed
+    // smart_contracts/policy_guard/contract.py:63-64
+    // # 3) This payment must keep the payer under their cap.
+    // prior = self.spent.get(payer, default=UInt64(0))
+    pushbytes "spent_"
+    dig 2
+    concat
+    dup
+    box_get
+    swap
+    btoi
+    intc_1 // 0
+    swap
+    uncover 2
+    select
+    // smart_contracts/policy_guard/contract.py:65
+    // cap = self.cap.get(payer, default=UInt64(0))
+    bytec_1 // "cap_"
+    uncover 4
+    concat
+    box_get
+    swap
+    btoi
+    intc_1 // 0
+    swap
+    uncover 2
+    select
+    // smart_contracts/policy_guard/contract.py:66
+    // assert prior + amount <= cap, "over the spending cap"
+    swap
+    uncover 3
+    +
+    dup
+    uncover 2
+    <=
+    assert // over the spending cap
+    // smart_contracts/policy_guard/contract.py:67-68
+    // # Record the spend. This only sticks if the whole bundle commits.
+    // self.spent[payer] = prior + amount
+    itob
+    box_put
+    // smart_contracts/policy_guard/contract.py:53-54
+    // # ---------- the gate: runs on EVERY payment ----------
+    // @abimethod
+    intc_0 // 1
+    return
